@@ -1,22 +1,23 @@
 import socket
 import threading
 
-HOST = '192.168.31.168'
+HOST = socket.gethostbyname(socket.gethostname())
 PORT = 5678
-SERVER_CONFIG = (HOST, PORT) 
-NAME_CHOSEN = False
-MSG_VALID = False
+SERVER_CONFIG = (HOST, PORT)
+FORMAT = 'utf-8'
+MSG_LENGTH = 2048
+DISCONNECT_MSG = '/leave'
 
 # Function to listen for messages from server
 def listen_to_server(client):
 
     while True:
-        message = client.recv(2048).decode('utf-8')
+        message = client.recv(MSG_LENGTH).decode(FORMAT)
 
         if message != '':
             # username = message.split(":")[0]
             # content = message.split(":")[1]
-            print(message)
+            print('\n' + message)
         else:
             print("Message received from client is empty")
 
@@ -26,11 +27,16 @@ def initialise_on_server(client):
 
     username = input("Please enter your username: ")
 
-    if username != '':
-        client.sendall(username.encode())
-    else:
+    while username == '':
         print("Username cannot be empty.")
-        exit(0)
+        username = input("Please enter your username: ")
+
+    # if username != '':
+    #     client.sendall(username.encode())
+    # else:
+        # print("Username cannot be empty.")
+    
+    client.sendall(username.encode())
          
     threading.Thread(target=listen_to_server, args=(client, )).start()
     send_message_to_server(client)
@@ -39,17 +45,14 @@ def initialise_on_server(client):
 # Function to send message to server
 def send_message_to_server(client):
     while True:
-        message = input("Message: ")    
+        message = input()    
 
         if message != '':
             client.sendall(message.encode())
-        else:
-            print("Message cannot be empty.")
-            exit(0)
 
 
 # Main function
-def main():
+def start():
 
     # Creating client socket object
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -63,5 +66,7 @@ def main():
 
     initialise_on_server(client)
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
+
+start()
