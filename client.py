@@ -1,10 +1,6 @@
 import socket
 import threading
 
-# HOST = socket.gethostbyname(socket.gethostname())
-# HOST = '0.0.0.0'
-# PORT = 5678
-# SERVER_CONFIG = (HOST, PORT)
 HOST_INFO = socket.getaddrinfo('localhost', 8080)
 SERVER_CONFIG_IPv4 = HOST_INFO[1][4]
 SERVER_CONFIG_IPv6 = HOST_INFO[0][4]
@@ -18,17 +14,12 @@ CONNECTED = False
 
 # Function to listen for messages from server
 def listen_to_server(client, CONNECTED):
-
-    # connected = True
     while CONNECTED:
         message = client.recv(MSG_LENGTH).decode(FORMAT)
 
         if message == DISCONNECT_MSG:
-            # connected = False
             CONNECTED = False
         elif message != '':
-            # username = message.split(":")[0]
-            # content = message.split(":")[1]
             print(message)
         else:
             print("Message received from client is empty")
@@ -36,17 +27,11 @@ def listen_to_server(client, CONNECTED):
 
 # Function to send communicate client info with server
 def initialise_on_server(client, CONNECTED):
-
     username = input("Please enter your username: ")
 
     while username == '':
         print("Username cannot be empty.")
         username = input("Please enter your username: ")
-
-    # if username != '':
-    #     client.sendall(username.encode())
-    # else:
-        # print("Username cannot be empty.")
     
     client.send(username.encode(FORMAT))
     CONNECTED = True
@@ -57,7 +42,6 @@ def initialise_on_server(client, CONNECTED):
 
 # Function to send message to server
 def send_message_to_server(client, CONNECTED):
-
     while CONNECTED:
         message = input()    
 
@@ -67,7 +51,6 @@ def send_message_to_server(client, CONNECTED):
 
 # Main function
 def start():
-
     # Creating client socket object
     ip_type = input(f'[INITIALIZATION] What type of connection would you like to establish? ipv4/ipv6\n')
 
@@ -77,7 +60,7 @@ def start():
 
         # Attempt to connect to server
         try:
-            client.connect(SERVER_CONFIG_IPv6)
+            client.connect(SERVER_CONFIG_IPv6) # client.connect(("::1", 5432, 0, 0))
             print(f"Client successfully connected to server {SERVER_CONFIG_IPv6} over {ip_type}")
             print(WELCOME_MSG)
         except:
@@ -87,7 +70,7 @@ def start():
 
         # Attempt to connect to server
         try:
-            client.connect(SERVER_CONFIG_IPv4)
+            client.connect(SERVER_CONFIG_IPv4) # client.connect(("127.0.0.1", 5432))
             print(f"Client successfully connected to server {SERVER_CONFIG_IPv4} over {ip_type}")
             print(WELCOME_MSG)
         except:
@@ -95,7 +78,5 @@ def start():
 
     initialise_on_server(client, CONNECTED)
 
-# if __name__ == "__main__":
-#     main()
-
+    
 start()
