@@ -48,7 +48,7 @@ def broadcast(message, sender):
     if sender and client_list != []:
         sender.send(f"[*sent*]\n[seen by {client_list}]\n".encode(FORMAT))
 
-
+# Function to send direct message to another client
 def direct(username, message, sender):
     if username in users.keys():
         if users[username]["online"]:
@@ -60,7 +60,7 @@ def direct(username, message, sender):
             if sender:
                 sender.send(f'[*sent*]\n[{username} offline. Last online {users[username]["last-online"].strftime("%d/%m/%y %H:%M:%S")}]\n'.encode(FORMAT))
 
-
+# Function to send messages to group chat
 def group(group_name, message, sender):
     client_list = []
     group_users = groups[group_name]["users"]
@@ -76,11 +76,11 @@ def group(group_name, message, sender):
     if sender:
         sender.send(f"[*sent*]\n[seen by {client_list}]\n".encode(FORMAT))
 
-
+# Function to create group chat 
 def create_group(group_name, usernames, admin):
     groups[group_name] = {"users": usernames, "admin": admin}
 
-
+# Function to check groups that user belongs to
 def check_user_groups(username):
     group_list = []
     for group in groups.keys():
@@ -89,12 +89,15 @@ def check_user_groups(username):
     
     return group_list
 
-
+# Function to handle client connections and messages
 def client_handler(client, address):
     print(f"[SERVER] User {address} connected")
     connected = True
     
     username = client.recv(MSG_LENGTH).decode(FORMAT)
+
+    # If username exists, connect client to existing username
+    # else, create new username
     if username in users.keys():
         users[username]["client"] = client
         users[username]["online"] = True
@@ -105,13 +108,18 @@ def client_handler(client, address):
 
     while connected:
         send_to_client(client, GENERAL_MSG, sender=None)
+
+        # if user has unread messages in queue, send it to them
         while not users[username]["queue"].empty():
             q_msg, q_sender = users[username]["queue"].get()
             send_to_client(client, f'{q_msg} \n', q_sender, username)
+        
+        # Receive message from client
         message = client.recv(MSG_LENGTH).decode(FORMAT)
         current_time = datetime.now()
         time = current_time.strftime("%d/%m/%y %H:%M:%S")
 
+        # If user sends disconnect message, close their connection and send message to other user
         if message == DISCONNECT_MSG:
             send_to_client(client, "/leave")
             connected = False
@@ -121,6 +129,7 @@ def client_handler(client, address):
             users[username]["last-online"] = datetime.now()
             broadcast(f"[SERVER] {username} has left the server.", sender=None)
 
+        # If user send direct message string, enter them into direct message mode
         elif message == DIRECT_MSG:
             send_to_client(client, "[DIRECT] You have entered direct message mode!\nDirect message to a user by '[username]~[message]'\n'/exit' to return to general\n")
             direct_mode = True
