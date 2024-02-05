@@ -3,35 +3,6 @@ import threading
 from queue import Queue
 from datetime import datetime
 
-# TODO:
-# - check if inputted users in server when creating group
-# - add 'last online' to user object
-# - inform senders if sender is offline and when they were last online
-# - implement file transfer
-# ? implement gui
-#
-#
-# KINDA FIXED:
-# - handle leaving server in client - exit to terminal
-# - implement read receipts
-# - the group chat admin can add/remove members, edit group info and delete group 
-#
-#
-# DONE:
-# - show when users leave the server
-# - when users send dm command, it will only message desired client
-# - a user can send group chat command to form a group with clients A and B etc.
-# - implement datetime: 
-#       when message sent: include time.time() 
-#       when message received, perform datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
-# - let users know when added to a group chat
-# - make creating group chat a command in group mode rather than default
-# - users can send messages to group even if they didnt create it
-# - implement message queue to save messages for offline users
-# - identify direct vs groupchat messages
-#       copy string format for broadcast message and add 'from [user]' or 'from [group]'
-# - implement choosing whether to use IPv4 or IPv6
-
 HOST = ""
 PORT = 8080
 SERVER_CONFIG_IPv4 = (HOST, PORT)
@@ -41,7 +12,7 @@ MSG_LENGTH = 2048
 DIRECT_MSG = '/direct'
 GROUP_MSG = '/group'
 DISCONNECT_MSG = '/leave'
-GENERAL_MSG = f"[GENERAL] Send message to everyone by just typing :)\nCommands: '{DIRECT_MSG}' '{GROUP_MSG}' '{DISCONNECT_MSG}'"
+GENERAL_MSG = f"[GENERAL] Send message to everyone by just typing :)\nEnter direct message mode using: '{DIRECT_MSG}'\nEnter group chat mode using: '{GROUP_MSG}'\nDisconnect from the app using: '{DISCONNECT_MSG}'"
 
 
 # Template for storing client data in dictionary
@@ -232,7 +203,6 @@ def start():
     server = socket.create_server(SERVER_CONFIG_IPv4, family=socket.AF_INET6, dualstack_ipv6=True)
 
     try:
-        # server.bind(SERVER_CONFIG_IPv4)
         print(f"[RUNNING] Server is running at {SERVER_CONFIG_IPv4} and accepts both IPv4 and IPv6 connections")
     except:
         print(f"[ERROR] Server unable to be created at host {SERVER_CONFIG_IPv4}")
