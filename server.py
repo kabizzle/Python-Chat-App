@@ -3,7 +3,7 @@ import threading
 from queue import Queue
 from datetime import datetime
 
-HOST = ""
+HOST = 'localhost'
 PORT = 8080
 SERVER_CONFIG_IPv4 = (HOST, PORT)
 
